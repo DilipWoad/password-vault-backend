@@ -2,6 +2,11 @@ import mongoose from "mongoose";
 import bcrypt from "bcrypt"; 
 const vaultSchema = new mongoose.Schema(
   {
+
+    user :{
+      type:mongoose.Schema.ObjectId,
+      ref:"User"
+    },
     title: {
       type: String,
       required: true,
@@ -25,7 +30,7 @@ const vaultSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-vaultSchema.pre("save", async (next) => {
+vaultSchema.pre("save", async function(next) {
   if (!this.isModified("password")) return next();
   //call a function that takes the user send password
   //and encrpty it

@@ -2,6 +2,7 @@ import { asyncHandler } from "../utils/asyncHandler.js";
 import { ApiError } from "../utils/ApiError.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
 import { User } from "../models/user.model.js";
+import { Vault } from "../models/vault.model.js";
 
 const isUserHasPinGenerated = asyncHandler(async (req, res) => {
   try {
@@ -87,4 +88,79 @@ const generatePin = asyncHandler(async (req, res) => {
   }
 });
 
-export { isUserHasPinGenerated, generatePin };
+const createVault = asyncHandler(async (req, res) => {
+  try {
+    //1) verify jwt auth
+    //2) check the fields are not empty
+    //3) notes can be empty
+    // console.log("This is what req body looks :", req);
+    const { title, username, password, url, note } = req.body;
+    if (
+      title.trim() === "" ||
+      username.trim() === "" ||
+      password.trim() === "" ||
+      url.trim() === ""
+    ) {
+      throw new ApiError(
+        "Fields title/username/password and url can't be empty."
+      );
+    }
+    const vault = await Vault.create({
+      user:req.user._id,
+      title,
+      username,
+      password,
+      url,
+      note,
+    })
+
+    if (!vault) {
+      throw new ApiError("Something went wrong while creating the vault.");
+    }
+
+    return res
+      .status(201)
+      .json(new ApiResponse(201, vault, "Vault created Successfully."));
+  } catch (error) {
+    console.error("Error while creating the vault.");
+
+    if (error instanceof Error) {
+      throw error;
+    }
+
+    throw new ApiError("Something went wrong while creating the vault.");
+  }
+});
+
+const getUserVault = asyncHandler(async (req, res) => {
+  try {
+    const user = req.user;
+
+    const userVault = await Vault.find({
+      user: user._id,
+    });
+
+    if (!userVault) {
+      throw new ApiError(
+        "Something went wrong while getting user password vaults."
+      );
+    }
+    return res
+      .status(200)
+      .json(
+        new ApiResponse(200, userVault, "User vault fetched successfully.")
+      );
+  } catch (error) {
+    console.error("Error while getting user password vaults.");
+
+    if (error instanceof Error) {
+      throw error;
+    }
+
+    throw new ApiError(
+      "Something went wrong while getting user password vaults."
+    );
+  }
+});
+
+export { isUserHasPinGenerated, generatePin, createVault, getUserVault };

@@ -1,10 +1,21 @@
 import Router from "express";
 import { verifyAuthentication } from "../middlewares/auth.middleware.js";
-import { isUserHasPinGenerated,generatePin } from "../controllers/vault.controller.js";
+import {
+  isUserHasPinGenerated,
+  generatePin,
+  getUserVault,
+  createVault,
+} from "../controllers/vault.controller.js";
 
 const router = Router();
-
-router.route("/pin-exists").get(verifyAuthentication, isUserHasPinGenerated);
-router.route("/generate-pin").patch(verifyAuthentication,generatePin);
+router.use(verifyAuthentication);
+router
+  .route("/pin")
+  .get(isUserHasPinGenerated)
+  .patch(generatePin);
+router
+  .route("/")
+  .get(getUserVault)
+  .post(createVault);
 
 export default router;
