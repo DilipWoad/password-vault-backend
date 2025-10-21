@@ -19,7 +19,7 @@ const userSchema = new mongoose.Schema(
       type: String,
     },
     pin:{
-      type:Number
+      type:String
     }
   },
   { timestamps: true }
