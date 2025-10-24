@@ -5,6 +5,8 @@ import {
   generatePin,
   getUserVault,
   createVault,
+  editVault,
+  deleteVault,
 } from "../controllers/vault.controller.js";
 
 const router = Router();
@@ -17,5 +19,8 @@ router
   .route("/")
   .get(getUserVault)
   .post(createVault);
-
+router
+  .route("/:vaultId")
+  .patch(editVault)
+  .delete(deleteVault);
 export default router;

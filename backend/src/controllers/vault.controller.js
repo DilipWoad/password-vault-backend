@@ -3,6 +3,7 @@ import { ApiError } from "../utils/ApiError.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
 import { User } from "../models/user.model.js";
 import { Vault } from "../models/vault.model.js";
+import mongoose from "mongoose";
 
 const isUserHasPinGenerated = asyncHandler(async (req, res) => {
   try {
@@ -106,13 +107,13 @@ const createVault = asyncHandler(async (req, res) => {
       );
     }
     const vault = await Vault.create({
-      user:req.user._id,
+      user: req.user._id,
       title,
       username,
       password,
       url,
       note,
-    })
+    });
 
     if (!vault) {
       throw new ApiError("Something went wrong while creating the vault.");
@@ -129,6 +130,91 @@ const createVault = asyncHandler(async (req, res) => {
     }
 
     throw new ApiError("Something went wrong while creating the vault.");
+  }
+});
+
+const editVault = asyncHandler(async (req, res) => {
+  //only verified user
+  //we receive data from body and vault id from params
+  //chck if id is vaild
+  //then chk if vault exists with current userid
+  //check if all fields except note is empty or not
+  // then updates the vault with new values
+  // then .save()
+  try {
+    const { vaultId } = req.params;
+    const { title, username, password, url, note } = req.body;
+    if (!mongoose.isValidObjectId(vaultId)) {
+      throw new ApiError("Invalid vault Id.");
+    }
+    if (
+      title.trim() === "" ||
+      username.trim() === "" ||
+      password.trim() === "" ||
+      url.trim() === ""
+    ) {
+      throw new ApiError("Title/Username/Password and Url can't be empty");
+    }
+
+    const vault = await Vault.findOne({
+      user: req.user._id,
+      _id: vaultId,
+    });
+
+    if (!vault) {
+      throw new ApiError("Vault does not Exists.");
+    }
+
+    vault.title = title;
+    vault.username = username;
+    vault.password = password;
+    vault.url = url;
+    vault.note = note;
+
+    await vault.save();
+    return res
+      .status(200)
+      .json(new ApiResponse(200, vault, "Vault updated successfully"));
+  } catch (error) {
+    console.error("Error while editing the vault.");
+
+    if (error instanceof Error) {
+      throw error;
+    }
+
+    throw new ApiError("Something went wrong while editing the vault.");
+  }
+});
+
+const deleteVault = asyncHandler(async (req, res) => {
+  try {
+    const { vaultId } = req.params;
+    if (!mongoose.isValidObjectId(vaultId)) {
+      throw new ApiError("Invalid vault Id.");
+    }
+
+    const vault = await Vault.findOne({
+      user: req.user._id,
+      _id: vaultId,
+    });
+
+    if (!vault) {
+      throw new ApiError("Vault does not Exists.");
+    }
+
+    await Vault.findByIdAndDelete(vaultId);
+
+    return res
+      .status(200)
+      .json(new ApiResponse(200, [], "Vault deleted successfully"));
+  } catch (error) {
+    console.error("Error while deleting the vault.");
+
+    if (error instanceof Error) {
+      throw error;
+    }
+
+    throw new ApiError("Something went wrong while deleting the vault.");
   }
 });
 
@@ -163,4 +249,11 @@ const getUserVault = asyncHandler(async (req, res) => {
   }
 });
 
-export { isUserHasPinGenerated, generatePin, createVault, getUserVault };
+export {
+  isUserHasPinGenerated,
+  generatePin,
+  createVault,
+  getUserVault,
+  editVault,
+  deleteVault,
+};
