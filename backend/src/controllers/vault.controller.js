@@ -89,6 +89,23 @@ const generatePin = asyncHandler(async (req, res) => {
   }
 });
 
+const isPinCorrect = asyncHandler(async (req, res) => {
+  //verify jwt
+  //then we will recevied pin from body
+  const { pin } = req.body;
+  console.log("pin chk in backend",pin)
+  const user = await User.findById(req.user._id);
+  if (!user) {
+    throw new ApiError("User does not exists.", 404);
+  }
+
+  const userPin = await user.isCorrectPin(pin);
+  if (!userPin) {
+    return res.status(200).json(new ApiResponse(200, false, "In-correct Pin"));
+  }
+  return res.status(200).json(new ApiResponse(200, true, "Correct Pin"));
+});
+
 const createVault = asyncHandler(async (req, res) => {
   try {
     //1) verify jwt auth
@@ -256,4 +273,5 @@ export {
   getUserVault,
   editVault,
   deleteVault,
+  isPinCorrect
 };

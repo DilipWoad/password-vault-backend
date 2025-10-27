@@ -50,7 +50,7 @@ userSchema.methods.isCorrectPassword = async function (password) {
 };
 
 userSchema.methods.isCorrectPin = async function (pin){
-  return await bcrypt.compare(pin.this.pin);
+  return await bcrypt.compare(pin,this.pin);
 }
 
 //generating access and refresh token
