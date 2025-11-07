@@ -58,8 +58,8 @@ const generatePin = asyncHandler(async (req, res) => {
     if (pin.trim() === "") {
       throw new ApiError("Pin cannot be Empty.", 400);
     }
-    if (pin.length > 4) {
-      throw new ApiError("Pin length should be equal to 4.", 400);
+    if (pin.length !== 4 || !/^\d+$/.test(pin)) {
+      throw new ApiError("PIN must be 4 digits.", 400);
     }
     //get user id using req.user
     //check user exits with giving user.id
@@ -93,7 +93,7 @@ const isPinCorrect = asyncHandler(async (req, res) => {
   //verify jwt
   //then we will recevied pin from body
   const { pin } = req.body;
-  console.log("pin chk in backend",pin)
+  console.log("pin chk in backend", pin);
   const user = await User.findById(req.user._id);
   if (!user) {
     throw new ApiError("User does not exists.", 404);
@@ -112,11 +112,10 @@ const createVault = asyncHandler(async (req, res) => {
     //2) check the fields are not empty
     //3) notes can be empty
     // console.log("This is what req body looks :", req);
-    const { title, username, password, url, note } = req.body;
+    const { title, username, password, url, note,iv } = req.body;
     if (
       title.trim() === "" ||
       username.trim() === "" ||
-      password.trim() === "" ||
       url.trim() === ""
     ) {
       throw new ApiError(
@@ -130,6 +129,7 @@ const createVault = asyncHandler(async (req, res) => {
       password,
       url,
       note,
+      iv
     });
 
     if (!vault) {
@@ -273,5 +273,5 @@ export {
   getUserVault,
   editVault,
   deleteVault,
-  isPinCorrect
+  isPinCorrect,
 };

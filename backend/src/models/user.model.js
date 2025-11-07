@@ -2,6 +2,7 @@ import mongoose from "mongoose";
 import jwt from "jsonwebtoken";
 import bcrypt from "bcrypt";
 
+
 const userSchema = new mongoose.Schema(
   {
     email: {
@@ -14,6 +15,10 @@ const userSchema = new mongoose.Schema(
     password: {
       type: String,
       required: [true, "Password is Required"],
+    },
+    enc_salt:{
+      type:String
+
     },
     refreshToken: {
       type: String,
@@ -37,9 +42,15 @@ userSchema.pre("save", async function (next) {
   if(this.isModified("pin")){
     this.pin = await bcrypt.hash(this.pin,10);
   }
+  if(this.enc_salt===undefined){
+    const uint8array = crypto.getRandomValues(new Uint8Array(16));
+    const binaryString = String.fromCharCode(...uint8array);
+    const base64String = btoa(binaryString);
+    this.enc_salt = base64String;
+    console.log( "does it reach here",this.enc_salt)
+  }
   //call a function that takes the user send password
   //and encrpty it
-  
   next();
 }); 
 

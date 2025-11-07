@@ -15,9 +15,14 @@ const vaultSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
+    //this is cipherText
     password: {
       type: String,
       required: true,
+    },
+    iv:{
+      type:String,
+      required:true,
     },
     url: {
       type: String,
@@ -30,12 +35,12 @@ const vaultSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-vaultSchema.pre("save", async function(next) {
-  if (!this.isModified("password")) return next();
-  //call a function that takes the user send password
-  //and encrpty it
-  this.password = await bcrypt.hash(this.password, 10);
-  next();
-});
+// vaultSchema.pre("save", async function(next) {
+//   if (!this.isModified("password")) return next();
+//   //call a function that takes the user send password
+//   //and encrpty it
+//   this.password = await bcrypt.hash(this.password, 10);
+//   next();
+// });
 
 export const Vault = mongoose.model("vault", vaultSchema);
