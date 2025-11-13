@@ -160,7 +160,7 @@ const editVault = asyncHandler(async (req, res) => {
   // then .save()
   try {
     const { vaultId } = req.params;
-    const { title, username, password, url, note } = req.body;
+    const { title, username, password, url, note,iv } = req.body;
     if (!mongoose.isValidObjectId(vaultId)) {
       throw new ApiError("Invalid vault Id.");
     }
@@ -168,9 +168,10 @@ const editVault = asyncHandler(async (req, res) => {
       title.trim() === "" ||
       username.trim() === "" ||
       password.trim() === "" ||
-      url.trim() === ""
+      url.trim() === ""||
+      iv.trim()=== ""
     ) {
-      throw new ApiError("Title/Username/Password and Url can't be empty");
+      throw new ApiError("Title/Username/Password/iv and Url can't be empty");
     }
 
     const vault = await Vault.findOne({
@@ -187,11 +188,12 @@ const editVault = asyncHandler(async (req, res) => {
     vault.password = password;
     vault.url = url;
     vault.note = note;
+    vault.iv=iv;
 
-    await vault.save();
+    const updatedVault =await vault.save();
     return res
       .status(200)
-      .json(new ApiResponse(200, vault, "Vault updated successfully"));
+      .json(new ApiResponse(200, updatedVault, "Vault updated successfully"));
   } catch (error) {
     console.error("Error while editing the vault.");
 
