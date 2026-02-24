@@ -20,7 +20,9 @@ app.use(express.urlencoded({ limit: "20kb", extended: true }));
 import globalErrorHandler from "./utils/globalErrorHandler.js";
 import authRouter from "./routes/auth.route.js";
 import vaultRouter from "./routes/vault.route.js";
-
+app.get("/health", (req, res) => {
+  res.status(200).json({ status: "OK", message: "Server is healthy" });
+});
 app.use("/api/v1/auth", authRouter);
 app.use("/api/v1/vault", vaultRouter);
 
