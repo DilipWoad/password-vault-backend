@@ -20,7 +20,6 @@ const verifyAuthentication = asyncHandler(async (req, res, next) => {
       req.header("Authorization")?.replace("Bearer ", "");
 
     //check if token present
-    console.log(token)
     if (!token) {
       throw new ApiError("Invalid Authorization !!");
     }
@@ -29,7 +28,6 @@ const verifyAuthentication = asyncHandler(async (req, res, next) => {
 
     const jwtPayload = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET_KEY);
     
-    // console.log("AccessToken from cookie/header:", token);
     if (!jwtPayload) {
       throw new ApiError("Invalid Access Token");
     }

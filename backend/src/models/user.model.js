@@ -47,7 +47,6 @@ userSchema.pre("save", async function (next) {
     const binaryString = String.fromCharCode(...uint8array);
     const base64String = btoa(binaryString);
     this.enc_salt = base64String;
-    console.log( "does it reach here",this.enc_salt)
   }
   //call a function that takes the user send password
   //and encrpty it
